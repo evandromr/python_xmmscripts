@@ -136,30 +136,6 @@ def copyregions(ppsfolder, workfolder, camera):
     return True
 
 
-def findinterval():
-    ' Find common interval for time analysis '
-
-    pnevents=fits.open(glob.glob('rpcdata/*PN*ImagingEvts.ds')[0])
-    mos1events=fits.open(glob.glob('rpcdata/*MOS1*ImagingEvts.ds')[0])
-    mos2events=fits.open(glob.glob('rpcdata/*MOS2*ImagingEvts.ds')[0])
-
-    listtimes1 = [pnevents['EVENTS'].header['TSTART'],
-        mos1events['EVENTS'].header['TSTART'],
-        mos2events['EVENTS'].header['TSTART']]
-
-    listtimes2 = [PNevents['EVENTS'].header['TSTOP'],
-        mos1events['EVENTS'].header['TSTOP'],
-        mos2events['EVENTS'].header['TSTOP']]
-
-    tstart=max(t1)
-    tstop=min(t2)
-
-    pnevents.close()
-    mos1events.close()
-    mos2events.close()
-
-    return tstart, tstop
-
 
 def promptforregions(camera):
     ' Prompt the user to select the necessary region file '
@@ -416,4 +392,121 @@ def lightcurves(camera):
     os.chdir('../../')
     return True
 
+
+def findinterval():
+    ' Find common interval for time analysis '
+
+    pnevents=fits.open(glob.glob('rpcdata/*PN*ImagingEvts.ds')[0])
+    mos1events=fits.open(glob.glob('rpcdata/*MOS1*ImagingEvts.ds')[0])
+    mos2events=fits.open(glob.glob('rpcdata/*MOS2*ImagingEvts.ds')[0])
+
+    listtimes1 = [pnevents['EVENTS'].header['TSTART'],
+        mos1events['EVENTS'].header['TSTART'],
+        mos2events['EVENTS'].header['TSTART']]
+
+    listtimes2 = [PNevents['EVENTS'].header['TSTOP'],
+        mos1events['EVENTS'].header['TSTOP'],
+        mos2events['EVENTS'].header['TSTOP']]
+
+    tstart=max(t1)
+    tstop=min(t2)
+
+    pnevents.close()
+    mos1events.close()
+    mos2events.close()
+
+    return tstart, tstop
+
+def extract_timedlc(bin, range, emin, emax, pntable, srcregion, bkgregion,
+        camera, tstart, tstop):
+    ''' Extract a barycentric corrected lightcurve
+        in the energy range['emin':'emax'], with time bins of 'bin'
+    '''
+
+    srclc='{0}_lc_src_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
+    bkglc='{0}_lc_bkg_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
+    netlc='{0}_lc_net_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
+    srcimg='{0}_src_img_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
+    bkgimg='{0}_bkg_img_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
+    psimg='{0}_lc_net_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
+
+    if camera.upper() == 'PN':
+        srcexp = 'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
+        bkgexp = 'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+    elif camera.upper() == 'MOS1':
+        srcexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
+        bkgexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+    elif camera.upper() == 'MOS2':
+        srcexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
+        bkgexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+    else:
+        print "Something is wrong, the camera doesn't exist"
+        raw_input('Please "Ctrl-C" to terminate execution and check errors')
+
+    # Extract a lightcurve for the src+bkg region for single and double events
+    suprocess.call(['evselect', 'table={0}'.format(pntable),
+    'energycolumn="PI"', 'withrateset=yes', 'rateset={0}'.format(srclc),
+    'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
+    'withimageset=yes', 'imageset={0}'.format(srcimg), 'xcolumn="X"',
+    'ycolumn="Y"', 'timemin={0}'.format(tstart), 'timemax={0}'.format(tstop),
+    srcexp])
+
+    # Extract a lightcurve for the bkg region for single and double events
+    subprocess.call(['evselect', 'table={0}'.format(pntable),
+    'energycolumn="PI"', 'withrateset=yes', 'rateset={0}'.format(bkglc),
+    'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
+    'withimageset=yes', 'imageset={0}'.format(bkgimg), 'xcolumn="X"',
+    'ycolumn="Y"', 'timemin={0}'.format(tstart), 'timemax={0}'.format(tstop),
+    bkgexp])
+
+    # Apply corrections and creates the net lightcurve
+    subprocess.call(['epiclccorr', 'eventlist={0}'.format(table),
+    'outset={0}'.format(netlc), 'srctslist={0}'.format(srclc),
+    'applyabsolutecorrections=yes', 'withbkgset=yes',
+    'bkgtslist={0}'.format(bkglc)])
+
+    # Save the net lightcurve visualization
+    subprocess.call(['dsplot', 'table={0}'.format(netlc), 'withx=yes',
+    'withy=yes', 'x=TIME', 'y=RATE',
+    'plotter="xmgrace -hardcopy -printfile {0}"'.format(psimg)])
+
+    return True
+
+
+def timed_lightcurves(camera):
+    ' creates lightcurves from the event files '
+
+    os.chdir('{0}/lightcurves/'.format(camera.lower()))
+    subprocess.call(['cp', '../{0}_clean.ds'.format(camera.upper()),
+        './{1}evts_barycen.ds'.format(camera.lower())])
+    subprocess.call(['cp', '../src.reg', './'])
+    subprocess.call(['cp', '../bkg.reg', './'])
+
+    src = open('src.reg', 'r')
+    srcregion = src.readlines()[-1].strip()
+    src.close()
+
+    bkg = open('bkg.reg', 'r')
+    bkgregion = bkg.readlines()[-1].strip()
+    bkg.close()
+
+    # Make barycentric correction on the clean event file
+    subprocess.call(['barycen',
+        'table={0}evts_barycen.ds:EVENTS'.format(camera.lower())])
+    pntable='{0}evts_barycen.ds'.format(camera.lower())
+
+    bins = [5, 10, 50, 150, 350, 500]
+    ranges = ['0310', '032', '245', '4510']
+    emins = [300, 300, 2000, 4500]
+    emaxs = [10000, 2000, 4500, 10000]
+
+    tstart, tstop = findinterval()
+
+    for bin in bins:
+        for i in xrange(len(ranges)):
+            extractlc(bin, ranges[i], emins[i], emaxs[i], pntable, srcregion,
+                    bkgregion, camera, tstart, tstop)
+
+    os.chdir('../../')
+    return True
 
