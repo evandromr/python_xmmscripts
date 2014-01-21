@@ -14,15 +14,12 @@ print "----------------- intended to point sources only -------------------"
 obsfolder='/home/evandromr/XMM/OBS/hd161103/2012sep08'
 ppsfolder=obsfolder+'/pps/'
 odffolder=obsfolder+'/odf/'
-
 # define secondary SAS variables (verbosity, memory level, etc)
 workfolder = pysas.definesasvar()
 
-#-----------------------------Reprocess data-----------------------------
+# ========================== Reprocess data ============================
 print "Reprocessing data"
-
 xmm_rpcdata = pysas.rpcdata(odffolder)
-
 print "End of data reprocessesment"
 #------------------------------------------------------------------------
 
@@ -31,7 +28,7 @@ tstart, tstop = pysas.findinterval()
 
 print "Starting the generation of scientific products"
 
-#------------------------ Camera PN -------------------------------------
+# =========================== Camera PN ==================================
 print "Cleaning PN events..."
 clearpnevents()
 print "DONE"
@@ -45,13 +42,10 @@ print "Starting PN spectrum extraction..."
 pysas.pnspec()
 print "DONE"
 
-## ------------ Events PN ---------------------------------------------------
-#echo "Starting PN event files extraction..."
-#cd events
-
-#source pneventscript.sh
-#cd ..
-#echo "DONE"
+# ----------------------- Events PN -------------------------------------
+print "Starting PN event files extraction..."
+pysas.pnevents()
+print "DONE"
 
 ## ------------ Light Curves PN --------------------------------------------
 #echo "Starting PN light curve extraction (full time)"

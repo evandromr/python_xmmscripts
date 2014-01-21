@@ -217,3 +217,59 @@ def pnspec():
 
     os.chdir('../../')
     return True
+
+
+def extractevents(pntable, fsrcname, fimgname, emin, emax, srcregion):
+    ' extract event file from passed region and energy range '
+
+    subprocess.call(['evselect', 'table={0}'.format(pntable),
+    'energycolumn="PI"', 'xcolumn="X"', 'ycolumn="Y"',
+    'keepfilteroutput=yes', 'withfilteredset=yes', 'withimageset=yes',
+    'filteredset={0}'.format(fsrcname), 'imageset={0}'.format(fimgname),
+    'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)])
+
+    return True
+
+
+def showevtreg(fimgname):
+    ' Show extracted image and region to visual check '
+
+    subprocess.call(['ds9', fimgname, '-zoom', '2', '-log', '-cmap', 'heat',
+    '-region', 'load', 'src_evt.reg'])
+    return True
+
+
+def pnevents():
+    ' Extract event files for the src in diferents energy ranges '
+
+    pnevt = glob.glob('rpcdata/*PN*Evts.ds')[0]
+    subprocess.call(['cp', pnevt, 'pn/events/pnevts_barycen.ds'])
+    subprocess.call(['cp', 'pn/src_evt.reg', 'pn/events/'])
+
+    os.chdir('pn/events/')
+
+    # Make barycentric correction on the clean event file
+    subprocess.call(['barycen', 'table=pnevts_barycen.ds:EVENTS'])
+
+    # Get the coordinates from the .reg file
+    src.open('src_evt.reg')
+    srcregion=src.readlines()[-1].strip()
+    src.close()
+
+    pntable='pnevts_barycen.ds'
+
+    ranges=['0310', '032', '245', '4510']
+    emins=[300, 300, 2000, 4500]
+    emaxs=[10000, 2000, 4500, 10000]
+
+    for i in xrange(len(ranges)):
+        fsrcname='pnevts_src_{0}keV.ds'.format(ranges[i])
+        fimgname='pnevts_src_img_{0}keV.ds'.format(ranges[i])
+        emin=emins[i]
+        emax=emaxs[i]
+        extractevents(pntable, fsrcname, fimgname, emin, emax, srcregion)
+
+    showevtreg(fimgname)
+    os.chdir('../../')
+
+    return True
