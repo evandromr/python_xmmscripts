@@ -30,26 +30,26 @@ print "Starting the generation of scientific products"
 
 # =========================== Camera PN ==================================
 print "Cleaning PN events..."
-clearpnevents()
+clearevents('pn')
 print "DONE"
 
 # Copy the regions file the pn folder
-pysas.copyregions(ppsfolder, workfolder)
-pysas.promptforregions()
+pysas.copyregions(ppsfolder, workfolder, 'pn')
+pysas.promptforregions('pn')
 
 # -------------------- Spectrum PN --------------------------------------
 print "Starting PN spectrum extraction..."
-pysas.pnspec()
+pysas.extractspec('pn')
 print "DONE"
 
 # ----------------------- Events PN -------------------------------------
 print "Starting PN event files extraction..."
-pysas.pnevents()
+pysas.events('pn')
 print "DONE"
 
 ## ------------ Light Curves PN --------------------------------------------
 print "Starting PN light curve extraction (full time)"
-pysas.pnlc()
+pysas.lightcurves('pn')
 print "DONE"
 
 ## ----------- Timed Light Curves PN ---------------------------------------
