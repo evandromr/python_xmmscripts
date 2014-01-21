@@ -273,3 +273,81 @@ def pnevents():
     os.chdir('../../')
 
     return True
+
+
+def lcextract(bin, range, emin, emax, pntable, srcregion, bkgregion):
+    ''' Extract a barycentric corrected lightcurve 
+        in the energy range['emin':'emax'], with time bins of 'bin'
+    '''
+
+    pnsrclc='PN_lc_src_{0}keV_bin{1}.ds'.format(range, bin)
+    pnbkglc='PN_lc_bkg_{0}keV_bin{1}.ds'.format(range, bin)
+    pnnetlc='PN_lc_net_{0}keV_bin{1}.ds'.format(range, bin)
+    pnsrcimg='PN_src_img_{0}keV_bin{1}.ds'.format(range, bin)
+    pnbkgimg='PN_bkg_img_{0}keV_bin{1}.ds'.format(range, bin)
+    psimg='PN_lc_net_{0}keV_bin{1}.ds'.format(range, bin)
+
+    # Extract a lightcurve for the src+bkg region for single and double events
+    suprocess.call(['evselect', 'table={0}'.format(pntable),
+    'energycolumn="PI"', 'withrateset=yes', 'rateset={0}'.format(pnsrclc),
+    'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
+    'withimageset=yes', 'imageset={0}'.format(pnsrcimg),
+    'xcolumn="X"', 'ycolumn="Y"',
+    'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)])
+
+    # Extract a lightcurve for the bkg region for single and double events
+    subprocess.call(['evselect', 'table={0}'.format(pntable),
+    'energycolumn="PI"', 'withrateset=yes', 'rateset={0}'.format(pnbkglc),
+    'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
+    'withimageset=yes', 'imageset={0}'.format(pnbkgimg),
+    'xcolumn="X"', 'ycolumn="Y"',
+    'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)])
+
+    # Apply corrections and creates the net lightcurve
+    subprocess.call(['epiclccorr', 'eventlist={0}'.format(pntable),
+    'outset={0}'.format(pnnetlc), 'srctslist={0}'.format(pnsrclc),
+    'applyabsolutecorrections=yes', 'withbkgset=yes',
+    'bkgtslist={0}'.format(pnbkglc)])
+
+    # Save the net lightcurve visualization
+    subprocess.call(['dsplot', 'table={0}'.format(pnnetlc), 'withx=yes',
+    'withy=yes', 'x=TIME', 'y=RATE',
+    'plotter="xmgrace -hardcopy -printfile {0}"'.format(psimg)])
+
+    return True
+
+
+def pnlc():
+    ' creates lightcurves from the event files '
+
+    os.chdir('pn/lightcurves/')
+    subprocess.call(['cp', '../PN_clean.ds', './pnevts_barycen.ds'])
+    subprocess.call(['cp', '../src.reg', './'])
+    subprocess.call(['cp', '../bkg.reg', './'])
+
+    src = open('src.reg', 'r')
+    srcregion = src.readlines()[-1].strip()
+    src.close()
+
+    bkg = open('bkg.reg', 'r')
+    bkgregion = bkg.readlines()[-1].strip()
+    bkg.close()
+
+    # Make barycentric correction on the clean event file
+    subprocess.call(['barycen', 'table=pnevts_barycen.ds:EVENTS'])
+    pntable='pnevts_barycen.ds'
+
+    bins = [5, 10, 50, 150, 350, 500]
+    ranges = ['0310', '032', '245', '4510']
+    emins = [300, 300, 2000, 4500]
+    emaxs = [10000, 2000, 4500, 10000]
+
+    for bin in bins:
+        for i in xrange(len(ranges)):
+            lcextract(bin, ranges[i], emins[i], emaxs[i],
+                    pntable, srcregion, bkgregion)
+
+    os.chdir('../../')
+    return True
+
+

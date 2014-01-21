@@ -48,13 +48,9 @@ pysas.pnevents()
 print "DONE"
 
 ## ------------ Light Curves PN --------------------------------------------
-#echo "Starting PN light curve extraction (full time)"
-#cd lightcurves
-
-#source pnlcscript.sh
-
-#cd ..
-#echo "DONE"
+print "Starting PN light curve extraction (full time)"
+pysas.pnlc()
+print "DONE"
 
 ## ----------- Timed Light Curves PN ---------------------------------------
 #echo "Starting PN light curve extraction (timed)"
