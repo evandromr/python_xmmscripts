@@ -7,3 +7,6 @@ Python scripts to automate the process of data reduction and generates scientifi
   - uses python's **`os`** module to manipulate folder paths and files
   - uses python's **`glob`** module to find files by name, path and regular expressions
   - uses **`astropy.io.fits`** to read relevant data from file headers, and manipulate files if necessary
+
+### Warning:
+  Need to initiate SAS and HEASOFT environment apropriately, and replace some libraries (such as `libgfortran.so`, `libstdc++.so` and `libgcc_s.so`) in the path \<sas-installation-folder\>/libextra/
