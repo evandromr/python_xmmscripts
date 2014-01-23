@@ -39,11 +39,13 @@ pysas.promptforregions('pn')
 pysas.extractspec('pn')
 
 pysas.copyregions(ppsfolder, workfolder, 'mos1')
-pysas.promptforregions('mos1')
+pysas.copypnregions('mos1')
+pysas.checkregions('mos1')
 pysas.extractspec('mos1')
 
 pysas.copyregions(ppsfolder, workfolder, 'mos2')
-pysas.promptforregions('mos2')
+pysas.copypnregions('mos2')
+pysas.checkregions('mos2')
 pysas.extractspec('mos2')
 
 print "DONE"

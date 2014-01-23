@@ -13,7 +13,7 @@ def definesasvar():
 
     os.environ['SAS_IMAGEVIEWER']='ds9'
     os.environ['SAS_MEMORY_MODEL']='high'
-    os.environ['SAS_VERBOSITY']='5'
+    os.environ['SAS_VERBOSITY']='3'
     os.environ['XPA_METHOD']='local'
 
     return os.getcwd()
@@ -22,6 +22,7 @@ def definesasvar():
 def rpcdata(odffolder):
     ' creates a new Summary File for the observation and Reprocess XMM data'
 
+    os.mkdir('rpcdata/')
     os.chdir('rpcdata/')
     xmm_rpcdata=os.getcwd()
 
@@ -38,13 +39,13 @@ def rpcdata(odffolder):
     subprocess.call(['odfingest'])
 
     #Point to the Summary file
-    os.environ['SAS_ODF']=glob.glob('*SUM.SAS')[0]
+    os.environ['SAS_ODF']=os.getcwd()+'/'+glob.glob('*SUM.SAS')[0]
 
     #Reprocess data
     subprocess.call(['epproc'])  # PN camera
     subprocess.call(['emproc'])  # MOS cameras
     #(one can use "(ep/em)chain" instead, see the SAS documentation)
-    os.chdir('..')
+    os.chdir('../')
 
     return xmm_rpcdata
 
@@ -53,33 +54,34 @@ def clearevents(camera):
     ' Clear event file for times with hight background flares '
 
     if camera.upper() == 'PN':
-        exp1='expression="XMMEA_EP && (PI > 10000 && PI <12000) && PATTERN==0"'
-        expgti='expression="RATE<=0.4"'
-        exp2='expression="#XMMEA_EP && gti(PN_gti.ds, TIME) && (PI > 150)"'
-        exp3='expression="#XMMEA_EP && (PI>300 && PI<12000) && PATTERN<=4 && FLAG==0"'
+        exp1='expression=#XMMEA_EP && (PI > 10000 && PI <12000) && PATTERN==0'
+        expgti='expression=RATE<=0.4'
+        exp2='expression=#XMMEA_EP && gti(PN_gti.ds, TIME) && (PI > 150)'
+        exp3='expression=#XMMEA_EP && (PI>300 && PI<12000) && PATTERN<=4 && FLAG==0'
     elif camera.upper() == 'MOS1':
-        exp1='expression="#XMMEA_EM && (PI > 10000) && PATTERN==0"'
-        expgti='expression="RATE<=0.35"'
-        exp2='expression="#XMMEA_EM && gti(MOS1_gti.ds, TIME) && (PI > 150)"'
-        exp3='expression="#XMMEA_EM && (PI>150 && PI<10000) && PATTERN<=12 && FLAG==0"'
+        exp1='expression=#XMMEA_EM && (PI > 10000) && PATTERN==0'
+        expgti='expression=RATE<=0.35'
+        exp2='expression=#XMMEA_EM && gti(MOS1_gti.ds, TIME) && (PI > 150)'
+        exp3='expression=#XMMEA_EM && (PI>150 && PI<10000) && PATTERN<=12 && FLAG==0'
     elif camera.upper() == 'MOS2':
-        exp1='expression="#XMMEA_EM && (PI > 10000) && PATTERN==0"'
-        expgti='expression="RATE<=0.35"'
-        exp2='expression="#XMMEA_EM && gti(MOS2_gti.ds, TIME) && (PI > 150)"'
-        exp3='expression="#XMMEA_EM && (PI>150 && PI<10000) && PATTERN<=12 && FLAG==0"'
+        exp1='expression=#XMMEA_EM && (PI > 10000) && PATTERN==0'
+        expgti='expression=RATE<=0.35'
+        exp2='expression=#XMMEA_EM && gti(MOS2_gti.ds, TIME) && (PI > 150)'
+        exp3='expression=#XMMEA_EM && (PI>150 && PI<10000) && PATTERN<=12 && FLAG==0'
     else:
         print "Something is wrong, the camera doesn't exist"
         raw_input('Please "Ctrl-C" to terminate execution and check errors')
 
+    os.mkdir(camera.lower())
     os.chdir(camera.lower())
 
-    evtfile=glob.glob('rpcdata/*{0}*Evts.ds'.format(camera.upper()))[0]
+    evtfile=glob.glob('../rpcdata/*{0}*Evts.ds'.format(camera.upper()))[0]
 
     # Extract lightcurve for energy 10keV < E and pattern='single'
     subprocess.call(['evselect', 'table={0}:EVENTS'.format(evtfile),
         'withrateset=yes', 'rateset={0}_rate.ds'.format(camera.upper()),
         'maketimecolumn=yes', 'makeratecolumn=yes', 'timebinsize=100',
-        'timecolumn="TIME"', exp1])
+        'timecolumn=TIME', exp1])
 
     # Saves a plot of the lightcurve created
     subprocess.call(['dsplot', 'table={0}_rate.ds:RATE'.format(camera.upper()),
@@ -98,15 +100,15 @@ def clearevents(camera):
     # Creates a lightcurve like PN_rate.ds but cleaned, for comparison
     subprocess.call(['evselect',
         'table={0}_clean.ds:EVENTS'.format(camera.upper()),
-        'withrateset=yes', 'rateset={0}_rate_clean.ds'.format(camera,upper()),
-        'maketimecolumn=yes', 'makeratecolumn=yes', 'timecolumn="TIME"',
+        'withrateset=yes', 'rateset={0}_rate_clean.ds'.format(camera.upper()),
+        'maketimecolumn=yes', 'makeratecolumn=yes', 'timecolumn=TIME',
         'timebinsize=100', exp1])
 
     # Saves a plot of the cleaned lightcurve
     subprocess.call(['dsplot',
         'table={0}_rate_clean.ds:RATE'.format(camera.upper()), 'withx=yes',
         'x=TIME', 'withy=yes', 'y=RATE',
-        'plotter="xmgrace -hardcopy -printfile {0}_rate_clean.ps"'.format(camera.upper())])
+        'plotter=xmgrace -hardcopy -printfile {0}_rate_clean.ps'.format(camera.upper())])
 
     # Creates before/after images for doubled-check visual analysis
     subprocess.call(['evselect', 'table={0}'.format(evtfile),
@@ -128,13 +130,40 @@ def copyregions(ppsfolder, workfolder, camera):
 
     os.chdir(ppsfolder)
 
-    origin=glob.glob('*REGION*')
-    destiny=workfolder+'/'+camera+'/regions.reg'
-    subprocess.call(['cp', regionfile, destiny])
+    origin=glob.glob('*REGION*')[0]
+    destiny=workfolder+'/'+camera.lower()+'/regions.reg'
+    subprocess.call(['cp', origin, destiny])
 
     os.chdir(workfolder)
     return True
 
+def copypnregions(camera):
+    ' copy the regions from the pn camera'
+
+    subprocess.call(['cp', 'pn/src.reg', camera.lower()+'/src.reg'])
+    subprocess.call(['cp', 'pn/bkg.reg', camera.lower()+'/bkg.reg'])
+    subprocess.call(['cp', 'pn/src_evt.reg', camera.lower()+'/src_evt.reg'])
+
+    return True
+
+
+def checkregions(camera):
+    ' check if existent regions are consistent '
+
+    print 'Check if the regions are Ok'
+    print ''
+
+    os.chdir(camera.lower())
+
+    subprocess.call(['ds9', '{0}_image_clean.ds'.format(camera.upper()),
+        '-regions', 'load', 'regions.reg',
+        '-regions', 'load', 'src.reg',
+        '-regions', 'load', 'bkg.reg',
+        '-regions', 'load', 'src_evt.reg',
+        '-cmap', 'Heat', '-log', '-zoom', '2'])
+
+    os.chdir('../')
+    return True
 
 
 def promptforregions(camera):
@@ -143,16 +172,20 @@ def promptforregions(camera):
     print "Select the regions src.reg, bkg.reg and src_evt.reg"
     print ""
 
+    os.chdir(camera.lower())
+
     subprocess.call(['ds9', '{0}_image_clean.ds'.format(camera.upper()),
         '-regions', 'load', 'regions.reg', '-cmap', 'Heat',
         '-log', '-zoom', '2'])
 
+    os.chdir('../')
     return True
 
 
 def extractspec(camera):
     ' Extract a spectra '
 
+    os.mkdir('{0}/spec'.format(camera.lower()))
     os.chdir('{0}/spec'.format(camera.lower()))
     subprocess.call(['cp', '../src.reg', './'])
     subprocess.call(['cp', '../bkg.reg', './'])
@@ -176,16 +209,16 @@ def extractspec(camera):
 
     if camera.upper() == 'PN':
         maxchan=20479
-        srcexp='expression="#XMMEA_EP && PATTERN<=4 && FLAG==0 && ((X,Y) IN {0})"'.format(srcregion)
-        bkgexp='expression="#XMMEA_EP && PATTERN<=4 && FLAG==0 && ((X,Y) IN {0})"'.format(bkgregion)
+        srcexp='expression=#XMMEA_EP && PATTERN<=4 && FLAG==0 && ((X,Y) IN {0})'.format(srcregion)
+        bkgexp='expression=#XMMEA_EP && PATTERN<=4 && FLAG==0 && ((X,Y) IN {0})'.format(bkgregion)
     elif camera.upper() == 'MOS1':
         maxchan=11999
-        srcexp='expression="#XMMEA_EM && PATTERN<=12 && FLAG==0 && ((X,Y) IN {0})"'.format(srcregion)
-        bkgexp='expression="#XMMEA_EM && PATTERN<=12 && FLAG==0 && ((X,Y) IN {0})"'.format(bkgregion)
+        srcexp='expression=#XMMEA_EM && PATTERN<=12 && FLAG==0 && ((X,Y) IN {0})'.format(srcregion)
+        bkgexp='expression=#XMMEA_EM && PATTERN<=12 && FLAG==0 && ((X,Y) IN {0})'.format(bkgregion)
     elif camera.upper() == 'MOS2':
         maxchan=11999
-        srcexp='expression="#XMMEA_EM && PATTERN<=12 && FLAG==0 && ((X,Y) IN {0})"'.format(srcregion)
-        bkgexp='expression="#XMMEA_EM && PATTERN<=12 && FLAG==0 && ((X,Y) IN {0})"'.format(bkgregion)
+        srcexp='expression=#XMMEA_EM && PATTERN<=12 && FLAG==0 && ((X,Y) IN {0})'.format(srcregion)
+        bkgexp='expression=#XMMEA_EM && PATTERN<=12 && FLAG==0 && ((X,Y) IN {0})'.format(bkgregion)
     else:
         print "Something is wrong, the camera doesn't exist"
         raw_input('Please "Ctrl-C" to terminate execution and check errors')
@@ -194,10 +227,10 @@ def extractspec(camera):
     # Extracts a source+background spectrum
     subprocess.call(['evselect', 'table={0}:EVENTS'.format(table),
     'withspectrumset=yes', 'spectrumset={0}'.format(srcspc),
-    'energycolumn="PI"', 'withspecranges=yes', 'spectralbinsize=5',
+    'energycolumn=PI', 'withspecranges=yes', 'spectralbinsize=5',
     'specchannelmax={0}'.format(maxchan), 'specchannelmin=0',
     'withimageset=yes', 'imageset={0}'.format(srcimg),
-    'xcolumn="X"', 'ycolumn="Y"', srcexp])
+    'xcolumn=X', 'ycolumn=Y', srcexp])
 
     # Scale the areas of src and bkg regions used
     subprocess.call(['backscale', 'spectrumset={0}'.format(srcspc),
@@ -206,10 +239,10 @@ def extractspec(camera):
     # Extracts a background spectrum
     subprocess.call(['evselect', 'table={0}:EVENTS'.format(table),
     'withspectrumset=yes', 'spectrumset={0}'.format(bkgspc),
-    'energycolumn="PI"', 'withspecranges=yes', 'spectralbinsize=5',
+    'energycolumn=PI', 'withspecranges=yes', 'spectralbinsize=5',
     'specchannelmax={0}'.format(maxchan), 'specchannelmin=0',
     'withimageset=yes', 'imageset={0}'.format(bkgimg),
-    'xcolumn="X"', 'ycolumn="Y"', bkgexp])
+    'xcolumn=X', 'ycolumn=Y', bkgexp])
 
     # Scale the are of the bkg region used
     subprocess.call(['backscale', 'spectrumset={0}'.format(bkgspc),
@@ -239,17 +272,17 @@ def extractevents(table, fsrcname, fimgname, emin, emax, srcregion, camera):
     ' extract event file from passed region and energy range '
 
     if camera.upper() == 'PN':
-        exp = 'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
+        exp = 'expression=#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
     elif camera.upper() == 'MOS1':
-        exp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 &&((X,Y) IN {2})"'.format(emin, emax, srcregion)
+        exp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
     elif camera.upper() == 'MOS2':
-        exp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
+        exp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
     else:
         print "Something is wrong, the camera doesn't exist"
         raw_input('Please "Ctrl-C" to terminate execution and check errors')
 
     subprocess.call(['evselect', 'table={0}'.format(table),
-        'energycolumn="PI"', 'xcolumn="X"', 'ycolumn="Y"',
+        'energycolumn=PI', 'xcolumn=X', 'ycolumn=Y',
         'keepfilteroutput=yes', 'withfilteredset=yes', 'withimageset=yes',
         'filteredset={0}'.format(fsrcname), 'imageset={0}'.format(fimgname),
         exp])
@@ -268,20 +301,22 @@ def showevtreg(fimgname):
 def events(camera):
     ' Extract event files for the src in diferents energy ranges '
 
+    os.mkdir('{0}/events/'.format(camera.lower()))
+    
     evt = glob.glob('rpcdata/*{0}*Evts.ds'.format(camera.upper()))[0]
-    subprocess.call(['cp', pnevt,
+    subprocess.call(['cp', evt,
         '{0}/events/{0}evts_barycen.ds'.format(camera.lower())])
-    subprocess.call(['cp', '{0}/src_evt.reg',
-        '{0}/events/'.format(camera.lower())])
+    subprocess.call(['cp', '{0}/src_evt.reg'.format(camera.lower()),
+        '{0}/events/src_evt.reg'.format(camera.lower())])
 
-    os.chdir('{0}/events/'.format(camera.lowe()))
+    os.chdir('{0}/events/'.format(camera.lower()))
 
     # Make barycentric correction on the clean event file
     subprocess.call(['barycen',
         'table={0}evts_barycen.ds:EVENTS'.format(camera.lower())])
 
     # Get the coordinates from the .reg file
-    src.open('src_evt.reg')
+    src = open('src_evt.reg')
     srcregion=src.readlines()[-1].strip()
     src.close()
 
@@ -304,7 +339,7 @@ def events(camera):
     return True
 
 
-def extractlc(bin, range, emin, emax, pntable, srcregion, bkgregion, camera):
+def extractlc(bin, range, emin, emax, table, srcregion, bkgregion, camera):
     ''' Extract a barycentric corrected lightcurve
         in the energy range['emin':'emax'], with time bins of 'bin'
     '''
@@ -317,31 +352,31 @@ def extractlc(bin, range, emin, emax, pntable, srcregion, bkgregion, camera):
     psimg='{0}_lc_net_{1}keV_bin{2}.ds'.format(camera.upper(), range, bin)
 
     if camera.upper() == 'PN':
-        srcexp = 'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
-        bkgexp = 'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+        srcexp = 'expression=#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
+        bkgexp = 'expression=#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, bkgregion)
     elif camera.upper() == 'MOS1':
-        srcexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
-        bkgexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+        srcexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
+        bkgexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, bkgregion)
     elif camera.upper() == 'MOS2':
-        srcexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
-        bkgexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+        srcexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
+        bkgexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, bkgregion)
     else:
         print "Something is wrong, the camera doesn't exist"
         raw_input('Please "Ctrl-C" to terminate execution and check errors')
 
     # Extract a lightcurve for the src+bkg region for single and double events
-    suprocess.call(['evselect', 'table={0}'.format(pntable),
-    'energycolumn="PI"', 'withrateset=yes', 'rateset={0}'.format(srclc),
+    subprocess.call(['evselect', 'table={0}'.format(table),
+    'energycolumn=PI', 'withrateset=yes', 'rateset={0}'.format(srclc),
     'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
     'withimageset=yes', 'imageset={0}'.format(srcimg),
-    'xcolumn="X"', 'ycolumn="Y"', srcexp])
+    'xcolumn=X', 'ycolumn=Y', srcexp])
 
     # Extract a lightcurve for the bkg region for single and double events
-    subprocess.call(['evselect', 'table={0}'.format(pntable),
-    'energycolumn="PI"', 'withrateset=yes', 'rateset={0}'.format(bkglc),
+    subprocess.call(['evselect', 'table={0}'.format(table),
+    'energycolumn=PI', 'withrateset=yes', 'rateset={0}'.format(bkglc),
     'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
     'withimageset=yes', 'imageset={0}'.format(bkgimg),
-    'xcolumn="X"', 'ycolumn="Y"', bkgexp])
+    'xcolumn=X', 'ycolumn=Y', bkgexp])
 
     # Apply corrections and creates the net lightcurve
     subprocess.call(['epiclccorr', 'eventlist={0}'.format(table),
@@ -352,7 +387,7 @@ def extractlc(bin, range, emin, emax, pntable, srcregion, bkgregion, camera):
     # Save the net lightcurve visualization
     subprocess.call(['dsplot', 'table={0}'.format(netlc), 'withx=yes',
     'withy=yes', 'x=TIME', 'y=RATE',
-    'plotter="xmgrace -hardcopy -printfile {0}"'.format(psimg)])
+    'plotter=xmgrace -hardcopy -printfile {0}'.format(psimg)])
 
     return True
 
@@ -360,9 +395,10 @@ def extractlc(bin, range, emin, emax, pntable, srcregion, bkgregion, camera):
 def lightcurves(camera):
     ' creates lightcurves from the event files '
 
+    os.mkdir('{0}/lightcurves/'.format(camera.lower()))
     os.chdir('{0}/lightcurves/'.format(camera.lower()))
     subprocess.call(['cp', '../{0}_clean.ds'.format(camera.upper()),
-        './{1}evts_barycen.ds'.format(camera.lower())])
+        './{0}evts_barycen.ds'.format(camera.lower())])
     subprocess.call(['cp', '../src.reg', './'])
     subprocess.call(['cp', '../bkg.reg', './'])
 
@@ -377,7 +413,7 @@ def lightcurves(camera):
     # Make barycentric correction on the clean event file
     subprocess.call(['barycen',
         'table={0}evts_barycen.ds:EVENTS'.format(camera.lower())])
-    pntable='{0}evts_barycen.ds'.format(camera.lower())
+    table='{0}evts_barycen.ds'.format(camera.lower())
 
     bins = [5, 10, 50, 150, 350, 500]
     ranges = ['0310', '032', '245', '4510']
@@ -387,7 +423,7 @@ def lightcurves(camera):
     for bin in bins:
         for i in xrange(len(ranges)):
             extractlc(bin, ranges[i], emins[i], emaxs[i],
-                    pntable, srcregion, bkgregion, camera)
+                    table, srcregion, bkgregion, camera)
 
     os.chdir('../../')
     return True
@@ -417,7 +453,7 @@ def findinterval():
 
     return tstart, tstop
 
-def extract_timedlc(bin, range, emin, emax, pntable, srcregion, bkgregion,
+def extract_timedlc(bin, range, emin, emax, table, srcregion, bkgregion,
         camera, tstart, tstop):
     ''' Extract a barycentric corrected lightcurve
         in the energy range['emin':'emax'], with time bins of 'bin'
@@ -431,32 +467,32 @@ def extract_timedlc(bin, range, emin, emax, pntable, srcregion, bkgregion,
     psimg='{0}_lc_net_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
 
     if camera.upper() == 'PN':
-        srcexp = 'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
-        bkgexp = 'expression="#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+        srcexp = 'expression=#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
+        bkgexp = 'expression=#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, bkgregion)
     elif camera.upper() == 'MOS1':
-        srcexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
-        bkgexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+        srcexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
+        bkgexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, bkgregion)
     elif camera.upper() == 'MOS2':
-        srcexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, srcregion)
-        bkgexp = 'expression="#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})"'.format(emin, emax, bkgregion)
+        srcexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
+        bkgexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, bkgregion)
     else:
         print "Something is wrong, the camera doesn't exist"
         raw_input('Please "Ctrl-C" to terminate execution and check errors')
 
     # Extract a lightcurve for the src+bkg region for single and double events
-    suprocess.call(['evselect', 'table={0}'.format(pntable),
-    'energycolumn="PI"', 'withrateset=yes', 'rateset={0}'.format(srclc),
+    suprocess.call(['evselect', 'table={0}'.format(table),
+    'energycolumn=PI', 'withrateset=yes', 'rateset={0}'.format(srclc),
     'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
-    'withimageset=yes', 'imageset={0}'.format(srcimg), 'xcolumn="X"',
-    'ycolumn="Y"', 'timemin={0}'.format(tstart), 'timemax={0}'.format(tstop),
+    'withimageset=yes', 'imageset={0}'.format(srcimg), 'xcolumn=X',
+    'ycolumn=Y', 'timemin={0}'.format(tstart), 'timemax={0}'.format(tstop),
     srcexp])
 
     # Extract a lightcurve for the bkg region for single and double events
-    subprocess.call(['evselect', 'table={0}'.format(pntable),
-    'energycolumn="PI"', 'withrateset=yes', 'rateset={0}'.format(bkglc),
+    subprocess.call(['evselect', 'table={0}'.format(table),
+    'energycolumn=PI', 'withrateset=yes', 'rateset={0}'.format(bkglc),
     'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
-    'withimageset=yes', 'imageset={0}'.format(bkgimg), 'xcolumn="X"',
-    'ycolumn="Y"', 'timemin={0}'.format(tstart), 'timemax={0}'.format(tstop),
+    'withimageset=yes', 'imageset={0}'.format(bkgimg), 'xcolumn=X',
+    'ycolumn=Y', 'timemin={0}'.format(tstart), 'timemax={0}'.format(tstop),
     bkgexp])
 
     # Apply corrections and creates the net lightcurve
@@ -468,7 +504,7 @@ def extract_timedlc(bin, range, emin, emax, pntable, srcregion, bkgregion,
     # Save the net lightcurve visualization
     subprocess.call(['dsplot', 'table={0}'.format(netlc), 'withx=yes',
     'withy=yes', 'x=TIME', 'y=RATE',
-    'plotter="xmgrace -hardcopy -printfile {0}"'.format(psimg)])
+    'plotter=xmgrace -hardcopy -printfile {0}'.format(psimg)])
 
     return True
 
@@ -476,9 +512,10 @@ def extract_timedlc(bin, range, emin, emax, pntable, srcregion, bkgregion,
 def timed_lightcurves(camera):
     ' creates lightcurves from the event files '
 
-    os.chdir('{0}/lightcurves/'.format(camera.lower()))
+    os.mkdir('{0}/timed_lightcurves/'.format(camera.lower()))
+    os.chdir('{0}/timed_lightcurves/'.format(camera.lower()))
     subprocess.call(['cp', '../{0}_clean.ds'.format(camera.upper()),
-        './{1}evts_barycen.ds'.format(camera.lower())])
+        './{0}evts_barycen.ds'.format(camera.lower())])
     subprocess.call(['cp', '../src.reg', './'])
     subprocess.call(['cp', '../bkg.reg', './'])
 
@@ -493,7 +530,7 @@ def timed_lightcurves(camera):
     # Make barycentric correction on the clean event file
     subprocess.call(['barycen',
         'table={0}evts_barycen.ds:EVENTS'.format(camera.lower())])
-    pntable='{0}evts_barycen.ds'.format(camera.lower())
+    table='{0}evts_barycen.ds'.format(camera.lower())
 
     bins = [5, 10, 50, 150, 350, 500]
     ranges = ['0310', '032', '245', '4510']
@@ -504,7 +541,7 @@ def timed_lightcurves(camera):
 
     for bin in bins:
         for i in xrange(len(ranges)):
-            extractlc(bin, ranges[i], emins[i], emaxs[i], pntable, srcregion,
+            extractlc(bin, ranges[i], emins[i], emaxs[i], table, srcregion,
                     bkgregion, camera, tstart, tstop)
 
     os.chdir('../../')
