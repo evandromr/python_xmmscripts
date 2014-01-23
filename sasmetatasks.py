@@ -480,7 +480,7 @@ def extract_timedlc(bin, range, emin, emax, table, srcregion, bkgregion,
         raw_input('Please "Ctrl-C" to terminate execution and check errors')
 
     # Extract a lightcurve for the src+bkg region for single and double events
-    suprocess.call(['evselect', 'table={0}'.format(table),
+    subprocess.call(['evselect', 'table={0}'.format(table),
     'energycolumn=PI', 'withrateset=yes', 'rateset={0}'.format(srclc),
     'timebinsize={0}'.format(bin), 'maketimecolumn=yes', 'makeratecolumn=yes',
     'withimageset=yes', 'imageset={0}'.format(srcimg), 'xcolumn=X',
