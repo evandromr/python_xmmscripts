@@ -432,20 +432,20 @@ def lightcurves(camera):
 def findinterval():
     ' Find common interval for time analysis '
 
-    pnevents=fits.open(glob.glob('rpcdata/*PN*ImagingEvts.ds')[0])
-    mos1events=fits.open(glob.glob('rpcdata/*MOS1*ImagingEvts.ds')[0])
-    mos2events=fits.open(glob.glob('rpcdata/*MOS2*ImagingEvts.ds')[0])
+    pnevents=fits.open(glob.glob('../../rpcdata/*PN*ImagingEvts.ds')[0])
+    mos1events=fits.open(glob.glob('../../rpcdata/*MOS1*ImagingEvts.ds')[0])
+    mos2events=fits.open(glob.glob('../../rpcdata/*MOS2*ImagingEvts.ds')[0])
 
     listtimes1 = [pnevents['EVENTS'].header['TSTART'],
         mos1events['EVENTS'].header['TSTART'],
         mos2events['EVENTS'].header['TSTART']]
 
-    listtimes2 = [PNevents['EVENTS'].header['TSTOP'],
+    listtimes2 = [pnevents['EVENTS'].header['TSTOP'],
         mos1events['EVENTS'].header['TSTOP'],
         mos2events['EVENTS'].header['TSTOP']]
 
-    tstart=max(t1)
-    tstop=min(t2)
+    tstart=max(listtimes1)
+    tstop=min(listtimes2)
 
     pnevents.close()
     mos1events.close()
@@ -541,7 +541,7 @@ def timed_lightcurves(camera):
 
     for bin in bins:
         for i in xrange(len(ranges)):
-            extractlc(bin, ranges[i], emins[i], emaxs[i], table, srcregion,
+            extract_timedlc(bin, ranges[i], emins[i], emaxs[i], table, srcregion,
                     bkgregion, camera, tstart, tstop)
 
     os.chdir('../../')
