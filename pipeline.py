@@ -9,10 +9,14 @@ print "--- Pipeline to data reduction of the XMM-NEWTON space telescope ---"
 print "----------------- intended to point sources only -------------------"
 #===========================================================================
 
+# !!!!!!!!!!!!!!!!!!!  EDIT HERE  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # the XMM observation folder path
-obsfolder='/home/evandromr/XMM/OBS/hd161103/2012sep08'
+obsfolder='/path/to/XMM/OBS/with/odf/and/pps/inside'
 ppsfolder=obsfolder+'/pps/'
 odffolder=obsfolder+'/odf/'
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 # define secondary SAS variables (verbosity, memory level, etc)
 workfolder = pysas.definesasvar()
 
