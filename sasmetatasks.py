@@ -396,9 +396,10 @@ def lightcurves(camera):
     ' creates lightcurves from the event files '
 
     os.mkdir('{0}/lightcurves/'.format(camera.lower()))
+    evt = glob.glob('rpcdata/*{0}*Evts.ds'.format(camera.upper()))[0]
+    subprocess.call(['cp', evt,
+        '{0}/lightcurves/{0}evts_barycen.ds'.format(camera.lower())])
     os.chdir('{0}/lightcurves/'.format(camera.lower()))
-    subprocess.call(['cp', '../{0}_clean.ds'.format(camera.upper()),
-        './{0}evts_barycen.ds'.format(camera.lower())])
     subprocess.call(['cp', '../src.reg', './'])
     subprocess.call(['cp', '../bkg.reg', './'])
 
@@ -513,9 +514,10 @@ def timed_lightcurves(camera):
     ' creates lightcurves from the event files '
 
     os.mkdir('{0}/timed_lightcurves/'.format(camera.lower()))
+    evt = glob.glob('rpcdata/*{0}*Evts.ds'.format(camera.upper()))[0]
+    subprocess.call(['cp', evt,
+        '{0}/timed_lightcurves/{0}evts_barycen.ds'.format(camera.lower())])
     os.chdir('{0}/timed_lightcurves/'.format(camera.lower()))
-    subprocess.call(['cp', '../{0}_clean.ds'.format(camera.upper()),
-        './{0}evts_barycen.ds'.format(camera.lower())])
     subprocess.call(['cp', '../src.reg', './'])
     subprocess.call(['cp', '../bkg.reg', './'])
 
