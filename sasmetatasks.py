@@ -548,4 +548,3 @@ def timed_lightcurves(camera):
 
     os.chdir('../../')
     return True
-
