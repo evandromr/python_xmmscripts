@@ -349,7 +349,7 @@ def extractlc(bin, range, emin, emax, table, srcregion, bkgregion, camera):
     netlc='{0}_lc_net_{1}keV_bin{2}.ds'.format(camera.upper(), range, bin)
     srcimg='{0}_src_img_{1}keV_bin{2}.ds'.format(camera.upper(), range, bin)
     bkgimg='{0}_bkg_img_{1}keV_bin{2}.ds'.format(camera.upper(), range, bin)
-    psimg='{0}_lc_net_{1}keV_bin{2}.ds'.format(camera.upper(), range, bin)
+    psimg='{0}_lc_net_{1}keV_bin{2}.ps'.format(camera.upper(), range, bin)
 
     if camera.upper() == 'PN':
         srcexp = 'expression=#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
@@ -465,7 +465,7 @@ def extract_timedlc(bin, range, emin, emax, table, srcregion, bkgregion,
     netlc='{0}_lc_net_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
     srcimg='{0}_src_img_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
     bkgimg='{0}_bkg_img_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
-    psimg='{0}_lc_net_{1}keV_bin{2}_timed.ds'.format(camera.upper(), range, bin)
+    psimg='{0}_lc_net_{1}keV_bin{2}_timed.ps'.format(camera.upper(), range, bin)
 
     if camera.upper() == 'PN':
         srcexp = 'expression=#XMMEA_EP && (PI IN [{0}:{1}]) && PATTERN <=4 && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, srcregion)
