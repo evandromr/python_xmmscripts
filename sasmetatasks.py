@@ -2,6 +2,7 @@
 #
 # Python-written tasks to automate the data reduction for XMM data
 import os
+import shutil
 import subprocess
 import glob
 import astropy.io.fits as fits
@@ -132,18 +133,18 @@ def copyregions(ppsfolder, workfolder, camera):
 
     origin=glob.glob('*REGION*')[0]
     destiny=workfolder+'/'+camera.lower()+'/regions.reg'
-    subprocess.call(['cp', origin, destiny])
+    shutil.copy(oriin, destiny)
 
     os.chdir(workfolder)
     return True
 
+
 def copypnregions(camera):
     ' copy the regions from the pn camera'
 
-    subprocess.call(['cp', 'pn/src.reg', camera.lower()+'/src.reg'])
-    subprocess.call(['cp', 'pn/bkg.reg', camera.lower()+'/bkg.reg'])
-    subprocess.call(['cp', 'pn/src_evt.reg', camera.lower()+'/src_evt.reg'])
-
+    shutil.copy('pn/src.reg', camera.lower()+'/src.reg')
+    shutil.copy('pn/bkg.reg', camera.lower()+'/src.bkg')
+    shutil.copy('pn/src_evt.reg', camera.lower()+'/src_evt.reg')
     return True
 
 
@@ -187,8 +188,8 @@ def extractspec(camera):
 
     os.mkdir('{0}/spec'.format(camera.lower()))
     os.chdir('{0}/spec'.format(camera.lower()))
-    subprocess.call(['cp', '../src.reg', './'])
-    subprocess.call(['cp', '../bkg.reg', './'])
+    shutil.copy('../src.reg', './')
+    shutil.copy('../bkg.reg', './')
 
     src = open('src.reg')
     srcregion = src.readlines()[-1].strip()
@@ -268,6 +269,97 @@ def extractspec(camera):
     return True
 
 
+def extractspecsingle(camera):
+    ' Extract a spectra '
+
+    os.mkdir('{0}/spec_single'.format(camera.lower()))
+    shutil.copy('{0}/src.reg'.format(camera.lower()),
+            '{0}/spec_single/src.reg'.format(camera.lower()))
+    shutil.copy('{0}/bkg.reg'.format(camera.lower()),
+            '{0}/spec_single/bkg.reg'.format(camera.lower()))
+    evt = glob.glob('rpcdata/*{0}*Evts.ds'.format(camera.upper()))[0]
+    shutil.copy(evt,
+        '{0}/spec_single/{0}evts.ds'.format(camera.lower()))
+
+    os.chdir('{0}/spec_single'.format(camera.lower()))
+
+    table = '{0}evts.ds'.format(camera.lower())
+    srcspc='{0}_srcspc_single.ds'.format(camera.upper())
+    srcimg='{0}_srcimg_single.ds'.format(camera.upper())
+    bkgspc='{0}_bkgspc_single.ds'.format(camera.upper())
+    bkgimg='{0}_bkgimg_single.ds'.format(camera.upper())
+    rmf='{0}_single.rmf'.format(camera.upper())
+    arf='{0}_single.arf'.format(camera.upper())
+
+    src = open('src.reg')
+    srcregion = src.readlines()[-1].strip()
+    src.close()
+
+    bkg = open('bkg.reg')
+    bkgregion = bkg.readlines()[-1].strip()
+    bkg.close()
+
+    if camera.upper() == 'PN':
+        maxchan=20479
+        srcexp='expression=#XMMEA_EP && PATTERN==0 && FLAG==0 && ((X,Y) IN {0})'.format(srcregion)
+        bkgexp='expression=#XMMEA_EP && PATTERN==0 && FLAG==0 && ((X,Y) IN {0})'.format(bkgregion)
+    elif camera.upper() == 'MOS1':
+        maxchan=11999
+        srcexp='expression=#XMMEA_EM && PATTERN==0 && FLAG==0 && ((X,Y) IN {0})'.format(srcregion)
+        bkgexp='expression=#XMMEA_EM && PATTERN==0 && FLAG==0 && ((X,Y) IN {0})'.format(bkgregion)
+    elif camera.upper() == 'MOS2':
+        maxchan=11999
+        srcexp='expression=#XMMEA_EM && PATTERN==0 && FLAG==0 && ((X,Y) IN {0})'.format(srcregion)
+        bkgexp='expression=#XMMEA_EM && PATTERN==0 && FLAG==0 && ((X,Y) IN {0})'.format(bkgregion)
+    else:
+        print "Something is wrong, the camera doesn't exist"
+        raw_input('Please "Ctrl-C" to terminate execution and check errors')
+
+
+    # Extracts a source+background spectrum
+    subprocess.call(['evselect', 'table={0}:EVENTS'.format(table),
+    'withspectrumset=yes', 'spectrumset={0}'.format(srcspc),
+    'energycolumn=PI', 'withspecranges=yes', 'spectralbinsize=5',
+    'specchannelmax={0}'.format(maxchan), 'specchannelmin=0',
+    'withimageset=yes', 'imageset={0}'.format(srcimg),
+    'xcolumn=X', 'ycolumn=Y', srcexp])
+
+    # Scale the areas of src and bkg regions used
+    subprocess.call(['backscale', 'spectrumset={0}'.format(srcspc),
+    'withbadpixcorr=yes', 'badpixlocation={0}'.format(table)])
+
+    # Extracts a background spectrum
+    subprocess.call(['evselect', 'table={0}:EVENTS'.format(table),
+    'withspectrumset=yes', 'spectrumset={0}'.format(bkgspc),
+    'energycolumn=PI', 'withspecranges=yes', 'spectralbinsize=5',
+    'specchannelmax={0}'.format(maxchan), 'specchannelmin=0',
+    'withimageset=yes', 'imageset={0}'.format(bkgimg),
+    'xcolumn=X', 'ycolumn=Y', bkgexp])
+
+    # Scale the are of the bkg region used
+    subprocess.call(['backscale', 'spectrumset={0}'.format(bkgspc),
+    'withbadpixcorr=yes', 'badpixlocation={0}'.format(table)])
+
+    # Generates response matrix
+    subprocess.call(['rmfgen', 'rmfset={0}'.format(rmf),
+    'spectrumset={0}'.format(srcspc)])
+
+    # Generates ana Ancillary response file
+    subprocess.call(['arfgen', 'arfset={0}'.format(arf),
+    'spectrumset={0}'.format(srcspc), '--withrmfset=yes', 'detmaptype=psf',
+    'rmfset={0}'.format(rmf), 'badpixlocation={0}'.format(table)])
+
+    # Rebin the spectrum and link associated files (output:EPICspec.pha)
+    # can be replaced by grppha tool from HEASOFT
+    subprocess.call(['specgroup', 'spectrumset={0}'.format(srcspc),
+    'mincounts=25', 'oversample=3', 'backgndset={0}'.format(bkgspc),
+    'rmfset={0}'.format(rmf), 'arfset={0}'.format(arf),
+    'groupedset={0}spec_single.pha'.format(camera.upper())])
+
+    os.chdir('../../')
+    return True
+
+
 def extractevents(table, fsrcname, fimgname, emin, emax, srcregion, camera):
     ' extract event file from passed region and energy range '
 
@@ -302,12 +394,12 @@ def events(camera):
     ' Extract event files for the src in diferents energy ranges '
 
     os.mkdir('{0}/events/'.format(camera.lower()))
-    
+
     evt = glob.glob('rpcdata/*{0}*Evts.ds'.format(camera.upper()))[0]
-    subprocess.call(['cp', evt,
-        '{0}/events/{0}evts_barycen.ds'.format(camera.lower())])
-    subprocess.call(['cp', '{0}/src_evt.reg'.format(camera.lower()),
-        '{0}/events/src_evt.reg'.format(camera.lower())])
+    shutil.copy(evt,
+        '{0}/events/{0}evts_barycen.ds'.format(camera.lower()))
+    shutil.copy('{0}/src_evt.reg'.format(camera.lower()),
+        '{0}/events/src_evt.reg'.format(camera.lower()))
 
     os.chdir('{0}/events/'.format(camera.lower()))
 
