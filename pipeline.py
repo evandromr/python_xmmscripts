@@ -16,7 +16,6 @@ ppsfolder=obsfolder+'/pps/'
 odffolder=obsfolder+'/odf/'
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
 # define secondary SAS variables (verbosity, memory level, etc)
 workfolder = pysas.definesasvar()
 
@@ -33,6 +32,7 @@ print "Cleaning events..."
 pysas.clearevents('pn')
 pysas.clearevents('mos1')
 pysas.clearevents('mos2')
+
 print "DONE"
 
 # =========================== Spectrum ==================================
@@ -41,16 +41,27 @@ print "Starting spectrum extraction..."
 pysas.copyregions(ppsfolder, workfolder, 'pn')
 pysas.promptforregions('pn')
 pysas.extractspec('pn')
+pysas.extractspecsingle('pn')
 
 pysas.copyregions(ppsfolder, workfolder, 'mos1')
 pysas.copypnregions('mos1')
 pysas.checkregions('mos1')
 pysas.extractspec('mos1')
+pysas.extractspecsingle('mos1')
 
 pysas.copyregions(ppsfolder, workfolder, 'mos2')
 pysas.copypnregions('mos2')
 pysas.checkregions('mos2')
 pysas.extractspec('mos2')
+pysas.extractspecsingle('mos2')
+
+print "DONE"
+
+# ===================== Timed Light Curves PN ============================
+print "Starting light curve extraction (timed)"
+pysas.timed_lightcurves('pn')
+pysas.timed_lightcurves('mos1')
+pysas.timed_lightcurves('mos2')
 
 print "DONE"
 
@@ -59,6 +70,7 @@ print "Starting event files extraction..."
 pysas.events('pn')
 pysas.events('mos1')
 pysas.events('mos2')
+
 print "DONE"
 
 # ======================== Light Curves ==================================
@@ -66,13 +78,7 @@ print "Starting light curve extraction (full time)"
 pysas.lightcurves('pn')
 pysas.lightcurves('mos1')
 pysas.lightcurves('mos2')
-print "DONE"
 
-# ===================== Timed Light Curves PN ============================
-print "Starting light curve extraction (timed)"
-pysas.timed_lightcurves('pn')
-pysas.timed_lightcurves('mos1')
-pysas.timed_lightcurves('mos2')
 print "DONE"
 
 # ========================================================================
