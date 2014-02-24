@@ -414,9 +414,9 @@ def events(camera):
 
     table='{0}evts_barycen.ds'.format(camera.lower())
 
-    ranges=['0310', '032', '245', '4510']
-    emins=[300, 300, 2000, 4500]
-    emaxs=[10000, 2000, 4500, 10000]
+    ranges=['0310', '032', '245', '4510', '210']
+    emins=[300, 300, 2000, 4500, 2000]
+    emaxs=[10000, 2000, 4500, 10000, 10000]
 
     for i in xrange(len(ranges)):
         fsrcname='{0}evts_src_{1}keV.ds'.format(camera.lower(), ranges[i])
@@ -509,9 +509,9 @@ def lightcurves(camera):
     table='{0}evts_barycen.ds'.format(camera.lower())
 
     bins = [5, 10, 50, 150, 350, 500]
-    ranges = ['0310', '032', '245', '4510']
-    emins = [300, 300, 2000, 4500]
-    emaxs = [10000, 2000, 4500, 10000]
+    ranges = ['0310', '032', '245', '4510', '210']
+    emins = [300, 300, 2000, 4500, 2000]
+    emaxs = [10000, 2000, 4500, 10000, 10000]
 
     for bin in bins:
         for i in xrange(len(ranges)):
@@ -627,9 +627,9 @@ def timed_lightcurves(camera):
     table='{0}evts_barycen.ds'.format(camera.lower())
 
     bins = [5, 10, 50, 150, 350, 500]
-    ranges = ['0310', '032', '245', '4510']
-    emins = [300, 300, 2000, 4500]
-    emaxs = [10000, 2000, 4500, 10000]
+    ranges = ['0310', '032', '245', '4510', '210']
+    emins = [300, 300, 2000, 4500, 2000]
+    emaxs = [10000, 2000, 4500, 10000, 10000]
 
     tstart, tstop = findinterval()
 
