@@ -133,7 +133,7 @@ def copyregions(ppsfolder, workfolder, camera):
 
     origin=glob.glob('*REGION*')[0]
     destiny=workfolder+'/'+camera.lower()+'/regions.reg'
-    shutil.copy(oriin, destiny)
+    shutil.copy(origin, destiny)
 
     os.chdir(workfolder)
     return True
