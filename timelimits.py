@@ -29,7 +29,7 @@ pnevents.close()
 mos1events.close()
 mos2events.close()
 
-timefile = open('commontime.dat','w')
+timefile = open('times.dat','w')
 timefile.write(str(tstart)+'/n')
 timefile.write(str(timestop))
 timefile.close()
