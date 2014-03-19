@@ -143,7 +143,7 @@ def copypnregions(camera):
     ' copy the regions from the pn camera'
 
     shutil.copy('pn/src.reg', camera.lower()+'/src.reg')
-    shutil.copy('pn/bkg.reg', camera.lower()+'/bkg.bkg')
+    shutil.copy('pn/bkg.reg', camera.lower()+'/bkg.reg')
     shutil.copy('pn/src_evt.reg', camera.lower()+'/src_evt.reg')
     return True
 
