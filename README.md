@@ -1,6 +1,8 @@
 Py-XMM-scripts
 ============
 
+## Warning: Development branch!!! (unstable)
+
 Python scripts to automate the process of data reduction and generates scientific products from XMM-Newton data.
 
   - uses python's **`subprocess`** module to run sas tasks
