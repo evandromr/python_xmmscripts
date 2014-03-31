@@ -7,6 +7,7 @@
 import glob
 import subprocess
 import os
+import sasenv  # redefine sas environmet variables
 
 
 os.mkdir('pn')
