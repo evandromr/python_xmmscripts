@@ -51,7 +51,7 @@ subprocess.call(['evselect', 'table={0}:EVENTS'.format(pnevents),
 
 # Creates a lightcurve cleaned, for comparison
 subprocess.call(['evselect', 'table={0}:EVENTS'.format(cleanevt),
-    'withrateset=yes', 'rateset={0}.ds'.format(cleanrate),
+    'withrateset=yes', 'rateset={0}'.format(cleanrate),
     'maketimecolumn=yes', 'makeratecolumn=yes',
     'timecolumn=TIME', 'timebinsize=100',
     'expression={0}'.format(origexp)])
