@@ -4,13 +4,15 @@
 import subprocess
 import glob
 import os
-
+import shutil
 
 # EDIT HERE ======================================================
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../rpcdata/*SUM.SAS')[0])
 os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../rpcdata/ccf.cif')[0])
 
-table = os.path.abspath('../rpcdata/m1events_barycen.ds')
+shutil.copyfile('../m1_clean.ds', 'm1_clean_barycen.ds')
+subprocess.call(['barycen', 'table=m1_clean_barycen.ds:EVENTS'])
+table = 'm1_clean_barycen.ds'
 
 srcregionfile = 'src.reg'
 bkgregionfile = 'bkg.reg'
@@ -20,10 +22,10 @@ pattern = 12
 tstart = 0
 tstop = 20000
 
-bins = [10, 100, 300]
-emins = [300, 2000]
-emaxs = [2000, 10000]
-strin = ['03-2keV', '2-10keV']
+bins = [10, 50, 100, 200, 300, 350]
+emins = [300, 300, 2000, 4500, 2000]
+emaxs = [10000, 2000, 4500, 10000, 10000]
+strin = ['0.3-10keV', '0.3-2keV', '2-4.5keV', '4.5-10keV', '2-10keV']
 
 #+++++++ Edit only if necessary +++++++++++++++
 # srcregion = 'circle(10000,20000,200)'
