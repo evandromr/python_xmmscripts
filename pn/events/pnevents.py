@@ -17,8 +17,7 @@ table = 'pn_clean_barycen.ds'
 
 pattern = 4
 
-srcregionfile = 'src.reg'
-bkgregionfile = 'bkg.reg'
+srcregionfile = 'src_evt.reg'
 
 rangestring = ['0.3-10keV', '0.3-2keV', '2-4.5keV', '4.5-10keV', '2-10keV']
 emins = [300, 300, 2000, 4500, 2000]
@@ -29,11 +28,6 @@ emaxs = [10000, 2000, 4500, 10000, 10000]
 src = open(srcregionfile, 'r')
 srcregion = src.readlines()[-1].strip()
 src.close()
-
-#bkgregion = 'circle(1000,2000,200)'
-bkg = open(bkgregionfile, 'r')
-bkgregion = bkg.readlines()[-1].strip()
-bkg.close()
 
 #========================================== END of EDIT block =======
 
