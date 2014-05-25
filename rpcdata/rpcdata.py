@@ -9,8 +9,8 @@ import astropy.io.fits as fits
 
 
 # EDIT HERE =======================================================
-odffolder = '/home/evandro/xmm/obs/hd000000/2000jan01/odf'
-
+#odffolder = '/home/user/xmm/obs/hd000000/2000jan01/odf'
+odffolder = os.path.abspath(raw_input("Enter path to ODF data: "))
 os.environ['SAS_IMAGEVIEWER'] = 'ds9'
 os.environ['SAS_MEMORY_MODEL'] = 'high'
 os.environ['SAS_VERBOSITY'] = '0'
@@ -55,20 +55,20 @@ subprocess.call(['barycen', 'table=m2events_barycen.ds:EVENTS'])
 
 timefile = open('times.dat', 'w')
 
-tstarts = [fits.getval('pnevetns_barycen.ds', 'TSTART', extname='EVENTS'),
-           fits.getval('m1evetns_barycen.ds', 'TSTART', extname='EVENTS'),
-           fits.getval('m2evetns_barycen.ds', 'TSTART', extname='EVENTS')]
+tstarts = [fits.getval('pnevents_barycen.ds', 'TSTART', extname='EVENTS'),
+           fits.getval('m1events_barycen.ds', 'TSTART', extname='EVENTS'),
+           fits.getval('m2events_barycen.ds', 'TSTART', extname='EVENTS')]
 
-tstops = [fits.getval('pnevetns_barycen.ds', 'TSTOP', extname='EVENTS'),
-           fits.getval('m1evetns_barycen.ds', 'TSTOP', extname='EVENTS'),
-           fits.getval('m2evetns_barycen.ds', 'TSTOP', extname='EVENTS')]
+tstops = [fits.getval('pnevents_barycen.ds', 'TSTOP', extname='EVENTS'),
+          fits.getval('m1events_barycen.ds', 'TSTOP', extname='EVENTS'),
+          fits.getval('m2events_barycen.ds', 'TSTOP', extname='EVENTS')]
 
 timefile.write('PN Times: tstart={0}, tstop={1}, duration={2}\n'.format(
-    tstarts[0], tstops[0], tstop[0]-tstart[0]))
+    tstarts[0], tstops[0], tstops[0]-tstarts[0]))
 timefile.write('MOS1 Times: tstart={0}, tstop={1}, duration={2}\n'.format(
-    tstarts[0], tstops[1], tstop[1]-tstart[1]))
+    tstarts[0], tstops[1], tstops[1]-tstarts[1]))
 timefile.write('MOS2 Times: tstart={0}, tstop={1}, duration={2}\n'.format(
-    tstarts[2], tstops[2], tstop[2]-tstart[2]))
+    tstarts[2], tstops[2], tstops[2]-tstarts[2]))
 
 timefile.write('\n')
 timefile.write('Common Time: \n')
