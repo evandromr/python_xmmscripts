@@ -19,8 +19,8 @@ bkgregionfile = 'bkg.reg'
 
 pattern = 12
 
-tstart = 0
-tstop = 20000
+tstart = 
+tstop = 
 
 bins = [10, 50, 100, 200, 300, 350]
 emins = [300, 300, 2000, 4500, 2000]
