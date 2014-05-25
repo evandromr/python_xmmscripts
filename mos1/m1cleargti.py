@@ -10,7 +10,7 @@ import os
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../rpcdata/*SUM.SAS')[0])
 os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../rpcdata/ccf.cif')[0])
 
-m1events = os.path.abspath('../rpcdata/m1evts.ds')
+m1events = os.path.abspath('../rpcdata/m1events.ds')
 
 rateset = "m1_rate.ds"
 imgset = "m1_image.ds"
