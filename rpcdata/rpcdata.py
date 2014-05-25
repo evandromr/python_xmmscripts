@@ -76,8 +76,6 @@ timefile.write('tstart={0} \n'.format(max(tstarts)))
 timefile.write('tstop={0} \n'.format(min(tstops)))
 timefile.write('duration={0}'.format(min(tstops)-max(tstarts)))
 
-print timefile.readlines()
-
 timefile.close()
 
 #Check everything
