@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to clear the events file of hight background flare events
-# For the mos2 camera
+# For the mos1 camera
 import subprocess
 import glob
 import os
@@ -51,7 +51,7 @@ subprocess.call(['evselect', 'table={0}:EVENTS'.format(m2events),
 
 # Creates a lightcurve cleaned, for comparison
 subprocess.call(['evselect', 'table={0}:EVENTS'.format(cleanevt),
-    'withrateset=yes', 'rateset={0}.ds'.format(cleanrate),
+    'withrateset=yes', 'rateset={0}'.format(cleanrate),
     'maketimecolumn=yes', 'makeratecolumn=yes',
     'timecolumn=TIME', 'timebinsize=100',
     'expression={0}'.format(origexp)])
