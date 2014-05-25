@@ -7,8 +7,8 @@ import os
 import shutil
 
 # EDIT HERE ====================================================
-os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../rpcdata/*SUM.SAS')[0])
-os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../rpcdata/ccf.cif')[0])
+os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../../rpcdata/*SUM.SAS')[0])
+os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../../rpcdata/ccf.cif')[0])
 
 shutil.copyfile('../m1_clean.ds', 'm1_clean_barycen.ds')
 subprocess.call(['barycen', 'table=m1_clean_barycen.ds:EVENTS'])
