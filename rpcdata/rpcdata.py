@@ -8,43 +8,43 @@ import os
 import astropy.io.fits as fits
 
 
-# EDIT HERE =======================================================
-#odffolder = '/home/user/xmm/obs/hd000000/2000jan01/odf'
+# === EDIT HERE ===============================================================
+# odffolder = '/home/user/xmm/obs/hd000000/2000jan01/odf'
 odffolder = os.path.abspath(raw_input("Enter path to ODF data: "))
 os.environ['SAS_IMAGEVIEWER'] = 'ds9'
 os.environ['SAS_MEMORY_MODEL'] = 'high'
 os.environ['SAS_VERBOSITY'] = '0'
 os.environ['XPA_METHOD'] = 'local'
-# =================================================================
+# =============================================================================
 
-#Point SAS_ODF to the raw observation data directory
+# Point SAS_ODF to the raw observation data directory
 os.environ['SAS_ODF'] = odffolder
 
 print('Building calibration files index...')
 subprocess.call(['cifbuild'])
 
-#Point to the calibration index
+# Point to the calibration index
 os.environ['SAS_CCF'] = os.path.abspath('ccf.cif')
 
-#Create observation summary
+# Create observation summary
 print('Creating observation summary...')
 subprocess.call(['odfingest'])
 
-#Point to the Summary file
+# Point to the Summary file
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('*SUM.SAS')[0])
 
-#Reprocess data
+# Reprocess data
 print('Running epproc...')
 subprocess.call(['epproc'])  # PN camera
 print('Running emproc...')
 subprocess.call(['emproc'])  # MOS cameras
-#(one can use "(ep/em)chain" instead, see the SAS documentation)
+# (one can use "(ep/em)chain" instead, see the SAS documentation)
 
 shutil.copyfile(glob.glob('*PN*ImagingEvts.ds')[0], 'pnevents.ds')
 shutil.copyfile(glob.glob('*MOS1*ImagingEvts.ds')[0], 'm1events.ds')
 shutil.copyfile(glob.glob('*MOS2*ImagingEvts.ds')[0], 'm2events.ds')
 
-#Check everything
+# Check everything
 subprocess.call(['sasversion'])
 
 # Writes observation times to file times.dat
