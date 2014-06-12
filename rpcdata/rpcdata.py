@@ -10,7 +10,7 @@ import astropy.io.fits as fits
 
 # === EDIT HERE ===============================================================
 # odffolder = '/home/user/xmm/obs/hd000000/2000jan01/odf'
-odffolder = os.path.abspath(raw_input("Enter path to ODF data: "))
+odffolder = os.path.abspath(input("Enter path to ODF data: "))
 os.environ['SAS_IMAGEVIEWER'] = 'ds9'
 os.environ['SAS_MEMORY_MODEL'] = 'high'
 os.environ['SAS_VERBOSITY'] = '0'
