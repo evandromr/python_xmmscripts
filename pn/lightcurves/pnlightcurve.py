@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#
+
 # Python script to extract a lightcurve from the PN camera
 import subprocess
 import glob

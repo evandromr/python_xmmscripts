@@ -1,5 +1,5 @@
 #!/bin/env python3
-#
+
 # Python script to extract a spectrum from the PN camera
 import subprocess
 import glob

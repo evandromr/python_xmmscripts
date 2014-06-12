@@ -1,5 +1,5 @@
 #!/bin/env python3
-#
+
 # Python-written tasks to automate the data reduction for XMM data
 import subprocess
 import glob

@@ -47,6 +47,14 @@ shutil.copyfile(glob.glob('*MOS2*ImagingEvts.ds')[0], 'm2events.ds')
 # Check everything
 subprocess.call(['sasversion'])
 
+shutil.copyfile('pnevents.ds', 'pnevents_barycen.ds')
+shutil.copyfile('m1events.ds', 'm1events_barycen.ds')
+shutil.copyfile('m2events.ds', 'm2events_barycen.ds')
+
+subprocess.call(['barycen', 'table=pnevents_barycen.ds:EVENTS'])
+subprocess.call(['barycen', 'table=m1events_barycen.ds:EVENTS'])
+subprocess.call(['barycen', 'table=m2events_barycen.ds:EVENTS'])
+
 # Writes observation times to file times.dat
 timefile = open('times.dat', 'w')
 
