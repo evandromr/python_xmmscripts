@@ -14,7 +14,7 @@ pattern = 12
 srcregionfile = 'src.reg'
 bkgregionfile = 'bkg.reg'
 
-prefix = "hd161103_0691760101"
+prefix = ""
 sufix = ""
 
 table = 'mos1_clean.ds'
