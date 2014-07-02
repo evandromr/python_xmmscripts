@@ -20,8 +20,8 @@ bkgregionfile = 'bkg.reg'
 
 pattern = 12
 
-tstart = 463486165.051217
-tstop = 463506845.066178
+tstart = float(input("Enter initial time: "))
+tstop = float(input("Enter final time: "))
 
 bins = [10, 50, 100, 150, 200, 300, 350]
 emins = [300, 300, 2000, 4500, 2000]
