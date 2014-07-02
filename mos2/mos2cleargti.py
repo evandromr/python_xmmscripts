@@ -11,18 +11,18 @@ import os
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../rpcdata/*SUM.SAS')[0])
 os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../rpcdata/ccf.cif')[0])
 
-m2events = os.path.abspath('../rpcdata/m2events.ds')
+mos2events = os.path.abspath('../rpcdata/mos2events.ds')
 
-rateset = "m2_rate.ds"
-imgset = "m2_image.ds"
+rateset = "mos2_rate.ds"
+imgset = "mos2_image.ds"
 origexp = "#XMMEA_EM && (PI > 10000) && (PATTERN==0)"
 
-gtifile = "m2_gti.ds"
+gtifile = "mos2_gti.ds"
 gtiexp = "RATE<=0.35"
 
-cleanevt = "m2_clean.ds"
-cleanrate = "m2_rate_clean.ds"
-cleanimg = "m2_image_clean.ds"
+cleanevt = "mos2_clean.ds"
+cleanrate = "mos2_rate_clean.ds"
+cleanimg = "mos2_image_clean.ds"
 cleanexp = "#XMMEA_EM && gti({0}, TIME) && (PI > 150)".format(gtifile)
 
 imgexp = "#XMMEA_EM && (PI>150 && PI<12000) && PATTERN<=12 && FLAG==0"
@@ -31,7 +31,7 @@ imgexp = "#XMMEA_EM && (PI>150 && PI<12000) && PATTERN<=12 && FLAG==0"
 
 # Extract lightcurve for energy 10keV < E < 12keV and pattern='single'
 subprocess.call(
-    ['evselect', 'table={0}:EVENTS'.format(m2events), 'withrateset=yes',
+    ['evselect', 'table={0}:EVENTS'.format(mos2events), 'withrateset=yes',
      'rateset={0}'.format(rateset), 'maketimecolumn=yes', 'makeratecolumn=yes',
      'timebinsize=100', 'timecolumn=TIME', 'expression={0}'.format(origexp)])
 
@@ -39,7 +39,7 @@ subprocess.call(
 subprocess.call(
     ['dsplot', 'table={0}:RATE'.format(rateset), 'withx=yes', 'x=TIME',
      'withy=yes', 'y=RATE',
-     'plotter=xmgrace -hardcopy -printfile {0}.ps'.format(rateset)])
+     'plotter=xmgrace -hardcopy -printfile {0}.ps'.format(rateset[:-2])])
 
 # Creates a GTI (good time interval) when RATE < 0.4
 subprocess.call(
@@ -48,7 +48,7 @@ subprocess.call(
 
 # Creates a clean Events File with the events on the GTI
 subprocess.call(
-    ['evselect', 'table={0}:EVENTS'.format(m2events), 'withfilteredset=yes',
+    ['evselect', 'table={0}:EVENTS'.format(mos2events), 'withfilteredset=yes',
      'filteredset={0}'.format(cleanevt), 'keepfilteroutput=yes',
      'expression={0}'.format(cleanexp)])
 
@@ -63,11 +63,11 @@ subprocess.call(
 subprocess.call(
     ['dsplot', 'table={0}:RATE'.format(cleanrate), 'withx=yes', 'x=TIME',
      'withy=yes', 'y=RATE',
-     'plotter=xmgrace -hardcopy -printfile {0}.ps'.format(cleanrate)])
+     'plotter=xmgrace -hardcopy -printfile {0}.ps'.format(cleanrate[:-2])])
 
 # Creates before/after images for doubled-check visual analysis
 subprocess.call(
-    ['evselect', 'table={0}'.format(m2events), 'withimageset=true',
+    ['evselect', 'table={0}'.format(mos2events), 'withimageset=true',
      'imageset={0}'.format(imgset), 'xcolumn=X', 'ycolumn=Y',
      'ximagebinsize=80', 'yimagebinsize=80', 'imagebinning=binSize',
      'expression={0}'.format(imgexp)])

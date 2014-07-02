@@ -14,14 +14,17 @@ pattern = 12
 srcregionfile = 'src.reg'
 bkgregionfile = 'bkg.reg'
 
-table = 'm2_clean.ds'
-srcspc = 'm2_srcspc.ds'
-srcimg = 'm2_srcimg.ds'
-bkgspc = 'm2_bkgspc.ds'
-bkgimg = 'm2_bkgimg.ds'
-rmf = 'm2.rmf'
-arf = 'm2.arf'
-grpspec = 'm2spec.pha'
+prefix = "hd161103_0691760101_"
+sufix = ""
+
+table = 'mos2_clean.ds'
+srcspc = '{0}mos2_srcspc{1}.ds'.format(prefix, sufix)
+srcimg = '{0}mos2_srcimg{1}.ds'.format(prefix, sufix)
+bkgspc = '{0}mos2_bkgspc{1}.ds'.format(prefix, sufix)
+bkgimg = '{0}mos2_bkgimg{1}.ds'.format(prefix, sufix)
+rmf = '{0}mos2{1}.rmf'.format(prefix, sufix)
+arf = '{0}mos2{1}.arf'.format(prefix, sufix)
+grpspec = '{0}mos2_spec{1}.pha'.format(prefix, sufix)
 
 # ++++++ Change only if necessary +++++++++++++
 

@@ -11,9 +11,9 @@ import shutil
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../../rpcdata/*SUM.SAS')[0])
 os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../../rpcdata/ccf.cif')[0])
 
-shutil.copyfile('../m2_clean.ds', 'm2_clean_barycen.ds')
-subprocess.call(['barycen', 'table=m2_clean_barycen.ds:EVENTS'])
-table = 'm2_clean_barycen.ds'
+shutil.copyfile('../mos2_clean.ds', 'mos2_clean_barycen.ds')
+subprocess.call(['barycen', 'table=mos2_clean_barycen.ds:EVENTS'])
+table = 'mos2_clean_barycen.ds'
 
 pattern = 12
 
@@ -33,8 +33,8 @@ src.close()
 
 for i, range in enumerate(rangestring):
 
-    fsrcname = 'm2evts_src_{0}.ds'.format(range)
-    fimgname = 'm2evts_src_img_{0}.ds'.format(range)
+    fsrcname = 'mos2evts_src_{0}.ds'.format(range)
+    fimgname = 'mos2evts_src_img_{0}.ds'.format(range)
 
     exp = "expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <={3} && \
 FLAG==0 && ((X,Y) IN {2})".format(emins[i], emaxs[i], srcregion, pattern)

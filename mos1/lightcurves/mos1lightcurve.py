@@ -11,19 +11,19 @@ import shutil
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../../rpcdata/*SUM.SAS')[0])
 os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../../rpcdata/ccf.cif')[0])
 
-shutil.copyfile('../m1_clean.ds', 'm1_clean_barycen.ds')
-subprocess.call(['barycen', 'table=m1_clean_barycen.ds:EVENTS'])
-table = 'm1_clean_barycen.ds'
+shutil.copyfile('../mos1_clean.ds', 'mos1_clean_barycen.ds')
+subprocess.call(['barycen', 'table=mos1_clean_barycen.ds:EVENTS'])
+table = 'mos1_clean_barycen.ds'
 
 srcregionfile = 'src.reg'
 bkgregionfile = 'bkg.reg'
 
 pattern = 12
 
-tstart =
-tstop =
+tstart = 463486165.051217
+tstop = 463506845.066178
 
-bins = [10, 50, 100, 200, 300, 350]
+bins = [10, 50, 100, 150, 200, 300, 350]
 emins = [300, 300, 2000, 4500, 2000]
 emaxs = [10000, 2000, 4500, 10000, 10000]
 strin = ['0.3-10keV', '0.3-2keV', '2-4.5keV', '4.5-10keV', '2-10keV']
@@ -43,12 +43,12 @@ bkg.close()
 for bin in bins:
     for i, energy in enumerate(zip(emins, emaxs)):
         # define output filenames
-        srclc = 'm1_lc_src_{0}_bin{1}.ds'.format(strin[i], bin)
-        bkglc = 'm1_lc_bkg_{0}_bin{1}.ds'.format(strin[i], bin)
-        netlc = 'm1_lc_net_{0}_bin{1}.ds'.format(strin[i], bin)
-        srcimg = 'm1_src_img_{0}_bin{1}.ds'.format(strin[i], bin)
-        bkgimg = 'm1_bkg_img_{0}_bin{1}.ds'.format(strin[i], bin)
-        psimg = 'm1_lc_net_{0}_bin{1}.ps'.format(strin[i], bin)
+        srclc = 'mos1_lc_src_{0}_bin{1}.ds'.format(strin[i], bin)
+        bkglc = 'mos1_lc_bkg_{0}_bin{1}.ds'.format(strin[i], bin)
+        netlc = 'mos1_lc_net_{0}_bin{1}.ds'.format(strin[i], bin)
+        srcimg = 'mos1_src_img_{0}_bin{1}.ds'.format(strin[i], bin)
+        bkgimg = 'mos1_bkg_img_{0}_bin{1}.ds'.format(strin[i], bin)
+        psimg = 'mos1_lc_net_{0}_bin{1}.ps'.format(strin[i], bin)
 
         # selection exprssion
         srcexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <={3} \
