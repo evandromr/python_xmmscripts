@@ -14,14 +14,17 @@ pattern = 4
 srcregionfile = os.path.abspath('src.reg')
 bkgregionfile = os.path.abspath('bkg.reg')
 
-table = 'pn_clean.ds'
-srcspc = 'pn_srcspc.ds'
-srcimg = 'pn_srcimg.ds'
-bkgspc = 'pn_bkgspc.ds'
-bkgimg = 'pn_bkgimg.ds'
-rmf = 'pn.rmf'
-arf = 'pn.arf'
-grpspec = 'pnspec.pha'
+prefix = ""
+sufix = ""
+
+table = 'pn_clean{1}.ds'.format(prefix, sufix)
+srcspc = '{0}pn_srcspc{1}.ds'.format(prefix, sufix)
+srcimg = '{0}pn_srcimg{1}.ds'.format(prefix, sufix)
+bkgspc = '{0}pn_bkgspc{1}.ds'.format(prefix, sufix)
+bkgimg = '{0}pn_bkgimg{1}.ds'.format(prefix, sufix)
+rmf = '{0}pn{1}.rmf'.format(prefix, sufix)
+arf = '{0}pn{1}.arf'.format(prefix, sufix)
+grpspec = '{0}pn_spec{1}.pha'.format(prefix, sufix)
 
 # ++++++ Change only if necessary +++++++++++++
 
