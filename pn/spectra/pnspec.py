@@ -17,7 +17,7 @@ bkgregionfile = os.path.abspath('bkg.reg')
 prefix = ""
 sufix = ""
 
-table = 'pn_clean{1}.ds'.format(prefix, sufix)
+table = 'pn_clean.ds'
 srcspc = '{0}pn_srcspc{1}.ds'.format(prefix, sufix)
 srcimg = '{0}pn_srcimg{1}.ds'.format(prefix, sufix)
 bkgspc = '{0}pn_bkgspc{1}.ds'.format(prefix, sufix)
