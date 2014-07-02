@@ -41,30 +41,30 @@ subprocess.call(['emproc'])  # MOS cameras
 # (one can use "(ep/em)chain" instead, see the SAS documentation)
 
 shutil.copyfile(glob.glob('*PN*ImagingEvts.ds')[0], 'pnevents.ds')
-shutil.copyfile(glob.glob('*MOS1*ImagingEvts.ds')[0], 'm1events.ds')
-shutil.copyfile(glob.glob('*MOS2*ImagingEvts.ds')[0], 'm2events.ds')
+shutil.copyfile(glob.glob('*MOS1*ImagingEvts.ds')[0], 'mos1events.ds')
+shutil.copyfile(glob.glob('*MOS2*ImagingEvts.ds')[0], 'mos2events.ds')
 
 # Check everything
 subprocess.call(['sasversion'])
 
 shutil.copyfile('pnevents.ds', 'pnevents_barycen.ds')
-shutil.copyfile('m1events.ds', 'm1events_barycen.ds')
-shutil.copyfile('m2events.ds', 'm2events_barycen.ds')
+shutil.copyfile('mos1events.ds', 'mos1events_barycen.ds')
+shutil.copyfile('mos2events.ds', 'mos2events_barycen.ds')
 
 subprocess.call(['barycen', 'table=pnevents_barycen.ds:EVENTS'])
-subprocess.call(['barycen', 'table=m1events_barycen.ds:EVENTS'])
-subprocess.call(['barycen', 'table=m2events_barycen.ds:EVENTS'])
+subprocess.call(['barycen', 'table=mos1events_barycen.ds:EVENTS'])
+subprocess.call(['barycen', 'table=mos2events_barycen.ds:EVENTS'])
 
 # Writes observation times to file times.dat
 timefile = open('times.dat', 'w')
 
 tstarts = [fits.getval('pnevents_barycen.ds', 'TSTART', extname='EVENTS'),
-           fits.getval('m1events_barycen.ds', 'TSTART', extname='EVENTS'),
-           fits.getval('m2events_barycen.ds', 'TSTART', extname='EVENTS')]
+           fits.getval('mos1events_barycen.ds', 'TSTART', extname='EVENTS'),
+           fits.getval('mos2events_barycen.ds', 'TSTART', extname='EVENTS')]
 
 tstops = [fits.getval('pnevents_barycen.ds', 'TSTOP', extname='EVENTS'),
-          fits.getval('m1events_barycen.ds', 'TSTOP', extname='EVENTS'),
-          fits.getval('m2events_barycen.ds', 'TSTOP', extname='EVENTS')]
+          fits.getval('mos1events_barycen.ds', 'TSTOP', extname='EVENTS'),
+          fits.getval('mos2events_barycen.ds', 'TSTOP', extname='EVENTS')]
 
 timefile.write('PN Times: tstart={0}, tstop={1}, duration={2}\n'.format(
     tstarts[0], tstops[0], tstops[0]-tstarts[0]))
