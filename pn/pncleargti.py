@@ -40,7 +40,7 @@ subprocess.call(
 subprocess.call(
     ['dsplot', 'table={0}:RATE'.format(rateset), 'withx=yes',
      'x=TIME', 'withy=yes', 'y=RATE',
-     'plotter=xmgrace -hardcopy -printfile {0}.ps'.format(rateset[:-2])])
+     'plotter=xmgrace -hardcopy -printfile {0}.ps'.format(rateset[:-3])])
 
 # Creates a GTI (good time interval) when RATE < 0.4
 subprocess.call(
@@ -66,7 +66,7 @@ subprocess.call(
 subprocess.call(
     ['dsplot', 'table={0}:RATE'.format(cleanrate), 'withx=yes',
      'x=TIME', 'withy=yes', 'y=RATE',
-     'plotter=xmgrace -hardcopy -printfile {0}.ps'.format(cleanrate[:-2])])
+     'plotter=xmgrace -hardcopy -printfile {0}.ps'.format(cleanrate[:-3])])
 
 # Creates before/after images for doubled-check visual analysis
 subprocess.call(
