@@ -1,4 +1,4 @@
-#!/bin/env python3
+#!/usr/bin/env python
 
 # Python-written tasks to automate the data reduction for XMM data
 import subprocess

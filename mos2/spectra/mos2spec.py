@@ -1,4 +1,4 @@
-#!/bin/env python3
+#!/usr/bin/env python
 
 # Python script to extract a spectrum from the MOS1 camera
 import subprocess
@@ -14,6 +14,7 @@ pattern = 12
 srcregionfile = 'src.reg'
 bkgregionfile = 'bkg.reg'
 
+# append to identify product files e.g: prefix="eta-Car_", sufix="_dec2012"
 prefix = ""
 sufix = ""
 

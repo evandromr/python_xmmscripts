@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Script to reprocess observation data files
 import subprocess
@@ -20,23 +20,23 @@ os.environ['XPA_METHOD'] = 'local'
 # Point SAS_ODF to the raw observation data directory
 os.environ['SAS_ODF'] = odffolder
 
-print('Building calibration files index...')
+print 'Building calibration files index...'
 subprocess.call(['cifbuild'])
 
 # Point to the calibration index
 os.environ['SAS_CCF'] = os.path.abspath('ccf.cif')
 
 # Create observation summary
-print('Creating observation summary...')
+print 'Creating observation summary...'
 subprocess.call(['odfingest'])
 
 # Point to the Summary file
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('*SUM.SAS')[0])
 
 # Reprocess data
-print('Running epproc...')
+print 'Running epproc...'
 subprocess.call(['epproc'])  # PN camera
-print('Running emproc...')
+print 'Running emproc...'
 subprocess.call(['emproc'])  # MOS cameras
 # (one can use "(ep/em)chain" instead, see the SAS documentation)
 

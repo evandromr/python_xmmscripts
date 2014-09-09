@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # coding: utf-8
 """
     sasmetatasks
@@ -57,8 +57,8 @@ def rpcdata(odffolder, process='yes'):
         os.environ['SAS_CCF'] = os.path.abspath('ccf.cif')
         os.environ['SAS_ODF'] = os.path.abspath(glob.glob('*SUM.SAS')[0])
     else:
-        print("Something wrong: choose process = 'yes' or 'no'")
-        input("Please enter <Ctrl-C> to terminate, and check for errors")
+        print "Something wrong: choose process = 'yes' or 'no'"
+        raw_input("Please enter <Ctrl-C> to terminate, and check for errors")
 
     # (one can use "(ep/em)chain" instead, see the SAS documentation)
     os.chdir('../')
@@ -91,8 +91,8 @@ def clearevents(camera, rpcdata_dir='../rpcdata'):
         exp3 = "expression=#XMMEA_EM && (PI>150 && PI<10000) && (PATTERN<=12)\
  && FLAG==0"
     else:
-        print("Something is wrong, the camera doesn't exist")
-        input("Please press 'Ctrl-C' to terminate and check errors")
+        print "Something is wrong, the camera doesn't exist"
+        raw_input("Please press 'Ctrl-C' to terminate and check errors")
 
     if not os.path.isdir(cam):
         os.mkdir(cam)
@@ -164,7 +164,7 @@ def copyregions(ppsfolder, camera):
     if os.path.isdir(ppsfolder):
         os.chdir(ppsfolder)
     else:
-        print("PPS folder entered doesn't exist")
+        print "PPS folder entered doesn't exist"
         return False
 
     origin = glob.glob('*REGION*')[0]
@@ -173,7 +173,7 @@ def copyregions(ppsfolder, camera):
         destiny = curdir+'/'+camera.lower()+'/regions.reg'
         shutil.copy(origin, destiny)
     else:
-        print("Region file doesn't exist")
+        print "Region file doesn't exist"
         return False
 
     os.chdir(curdir)
@@ -197,7 +197,7 @@ def checkregions(camera):
     curdir = os.getcwd()
 
     os.chdir(camera.lower())
-    print("Please, check if the regions are Ok")
+    print "Please, check if the regions are Ok"
 
     subprocess.call(
         ['ds9', '{0}_image_clean.ds'.format(camera.lower()),
@@ -215,9 +215,9 @@ def promptforregions(camera):
 
     curdir = os.getcwd()
 
-    print("Select the regions src.reg, bkg.reg and src_evt.reg")
-    print("WARNING: use the names indicated above and save as a ds9 region\
- with 'Physical' coordinates")
+    print "Select the regions src.reg, bkg.reg and src_evt.reg"
+    print "WARNING: use the names indicated above and save as a ds9 region\
+ with 'Physical' coordinates"
 
     os.chdir(camera.lower())
 
@@ -243,9 +243,9 @@ def extractspec(camera, obsid, evtfile='cleaned', srcfile='src.reg',
         evtfile = os.path.abspath(glob.glob(
             "rpcdata/*{0}*ImagingEvts.ds".format(camera.upper()))[0])
     elif not os.path.isfile(evtfile):
-        print("Event file not found, using {0}_clean.ds instead".format(cam))
+        print "Event file not found, using {0}_clean.ds instead".format(cam)
     else:
-        print("Using event file: {0}".format(evtfile))
+        print "Using event file: {0}".format(evtfile)
 
     if not os.path.isdir('{0}/{1}'.format(cam, outsubdir)):
         os.mkdir('{0}/{1}'.format(cam, outsubdir))
@@ -300,8 +300,8 @@ def extractspec(camera, obsid, evtfile='cleaned', srcfile='src.reg',
  && ((X,Y) IN {0})".format(bkgregion, pattern)
 
     else:
-        print("Something is wrong, the camera doesn't exist")
-        input("Please press 'Ctrl-C' to terminate and check for errors")
+        print "Something is wrong, the camera doesn't exist"
+        raw_input("Please press 'Ctrl-C' to terminate and check for errors")
 
     # Extracts a source+background spectrum
     subprocess.call(
@@ -377,8 +377,8 @@ def eventsextraction(table, fsrcname, fimgname, emin, emax, srcregion, camera,
         exp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && (PATTERN<={2})\
  && FLAG==0 && ((X,Y) IN {3})'.format(emin, emax, pattern, srcregion)
     else:
-        print("Something is wrong, the camera doesn't exist")
-        input("Please press 'Ctrl-C' to terminate and check errors")
+        print "Something is wrong, the camera doesn't exist"
+        raw_input("Please press 'Ctrl-C' to terminate and check errors")
 
     subprocess.call(
         ['evselect', 'table={0}'.format(table), 'energycolumn=PI', 'xcolumn=X',
@@ -410,9 +410,9 @@ def extractevents(camera, evtfile='original', pattern=99, outsubdir='events'):
         evtfile = os.path.abspath(glob.glob(
             "rpcdata/*{0}*ImagingEvts.ds".format(camera.upper()))[0])
     elif not os.path.isfile(evtfile):
-        print("Event file not found, using {0}_clean.ds instead".format(cam))
+        print "Event file not found, using {0}_clean.ds instead".format(cam)
     else:
-        print("Using event file: {0}".format(evtfile))
+        print "Using event file: {0}".format(evtfile)
 
     if not os.path.isdir('{0}/{1}'.format(cam, outsubdir)):
         os.mkdir('{0}/{1}'.format(cam, outsubdir))
@@ -525,8 +525,8 @@ def lcextraction(abin, arange, emin, emax, table, srcregion, bkgregion, camera,
         bkgexp = 'expression=#XMMEA_EM && (PI IN [{0}:{1}]) && PATTERN <=12\
  && FLAG==0 && ((X,Y) IN {2})'.format(emin, emax, bkgregion)
     else:
-        print("Something is wrong, the camera doesn't exist")
-        input("Please press 'Ctrl-C' to terminate and check for errors")
+        print "Something is wrong, the camera doesn't exist"
+        raw_input("Please press 'Ctrl-C' to terminate and check for errors")
 
     # Extract a lightcurve for the src+bkg region for single and double events
     subprocess.call(
@@ -575,9 +575,9 @@ def extractlc(camera, rpcdata_dir, evtfile='cleaned', timed='no',
         evtfile = os.path.abspath(glob.glob(
             "rpcdata/*{0}*ImagingEvts.ds".format(camera.upper()))[0])
     elif not os.path.isfile(evtfile):
-        print("Event file not found, using {0}_clean.ds instead".format(cam))
+        print "Event file not found, using {0}_clean.ds instead".format(cam)
     else:
-        print("Using event file: {0}".format(evtfile))
+        print "Using event file: {0}".format(evtfile)
 
     if not os.path.isdir('{0}/{1}'.format(cam, outsubdir)):
         os.mkdir('{0}/{1}'.format(cam, outsubdir))
@@ -611,10 +611,10 @@ def extractlc(camera, rpcdata_dir, evtfile='cleaned', timed='no',
     emaxs = [10000, 2000, 4500, 10000, 10000]
 
     if timed == 'yes':
-        print("Using common times for the 3 EPIC cameras")
+        print "Using common times for the 3 EPIC cameras"
         tstart, tstop = findcommontimes(rpcdata_dir)
     else:
-        print("Using initial and end times for the individual camera")
+        print "Using initial and end times for the individual camera"
         tstart, tstop = findtimes(rpcdata_dir, camera)
 
     for abin in bins:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # Script to clear the events file of hight background flare events
 # For the pn camera
