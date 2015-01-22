@@ -18,7 +18,7 @@ bkgregionfile = 'bkg.reg'
 prefix = ""
 sufix = ""
 
-table = 'mos1_clean.ds'
+table = '../mos1_clean.ds'
 srcspc = '{0}mos1_srcspc{1}.ds'.format(prefix, sufix)
 srcimg = '{0}mos1_srcimg{1}.ds'.format(prefix, sufix)
 bkgspc = '{0}mos1_bkgspc{1}.ds'.format(prefix, sufix)

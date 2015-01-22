@@ -11,9 +11,13 @@ import shutil
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../../rpcdata/*SUM.SAS')[0])
 os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../../rpcdata/ccf.cif')[0])
 
-shutil.copyfile('../mos2_clean.ds', 'mos2_clean_barycen.ds')
-subprocess.call(['barycen', 'table=mos2_clean_barycen.ds:EVENTS'])
-table = 'mos2_clean_barycen.ds'
+# To use the clean event file
+# shutil.copyfile('../mos2_clean.ds', 'mos2_clean_barycen.ds')
+# subprocess.call(['barycen', 'table=mos2_clean_barycen.ds:EVENTS'])
+# table = 'mos2_clean_barycen.ds'
+
+# Use original baricentric corrected event file
+table = '../../rpcdata/mos2events_barycen.ds'
 
 srcregionfile = 'src.reg'
 bkgregionfile = 'bkg.reg'
