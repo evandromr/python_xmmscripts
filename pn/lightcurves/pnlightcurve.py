@@ -6,18 +6,22 @@ import glob
 import os
 import shutil
 
-
 # EDIT HERE ===================================================================
 os.environ['SAS_ODF'] = os.path.abspath(glob.glob('../../rpcdata/*SUM.SAS')[0])
 os.environ['SAS_CCF'] = os.path.abspath(glob.glob('../../rpcdata/ccf.cif')[0])
 
-shutil.copyfile('../pn_clean.ds', 'pn_clean_barycen.ds')
-subprocess.call(['barycen', 'table=pn_clean_barycen.ds:EVENTS'])
-table = 'pn_clean_barycen.ds'
+# To use cleaned event file:
+# shutil.copyfile('../pn_clean.ds', 'pn_clean_barycen.ds')
+# subprocess.call(['barycen', 'table=pn_clean_barycen.ds:EVENTS'])
+# table = 'pn_clean_barycen.ds'
+
+# Use original baricentric corrected event file
+table = '../../rpcdata/pnevents_barycen.ds'
 
 srcregionfile = 'src.reg'
 bkgregionfile = 'bkg.reg'
 
+# maximum pattern
 pattern = 4
 
 tstart = float(input("Enter initial time: "))
