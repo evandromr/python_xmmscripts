@@ -1,0 +1,44 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+title: Python XMM_scripts
+email: ribeiro@astsro.rug.nl
+description: > # this means to ignore newlines until "baseurl:"
+    Python scripts, tips and tricks to work with XMM-SAS.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://evandromr.github.io/python_xmmscripts" # the base hostname & protocol for your site
+#twitter_username: jekyllrb
+github_username:  evandromr
+
+# Build settings
+markdown: kramdown
+
+# Github optional defaults
+github: [metadata]
+kramdown:
+  input: GFM
+  hard_wrap: false
+gems:
+  - jekyll-coffeescript
+  - jekyll-paginate
+
+# Github mandatory defaults
+lsi: false
+safe: true
+#source: [your repo's top level directory]
+incremental: false
+highlighter: rouge
+gist:
+  noscript: false
+
+# Github supported jekyll plugins
+gems:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jemoji
+  - jekyll-mentions
