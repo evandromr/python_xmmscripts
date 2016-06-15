@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Python3 XMM-Scripts
+title: Python XMM-Scripts
 ---
 
 Python XMM scripts
