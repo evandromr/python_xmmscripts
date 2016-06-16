@@ -6,7 +6,7 @@ title: Python XMM-Scripts
 Python XMM scripts
 ============
 
-[Download the latest version: 0.1-Alpha Release](https://github.com/evandromr/python_xmmscripts/releases)
+[Download the unstable development version: 0.1-Alpha Release](https://github.com/evandromr/python_xmmscripts/releases)
 
 Python scripts to automate the process of data reduction and generate scientific products from [XMM-Newton](http://xmm.esac.esa.int/) data.
 
